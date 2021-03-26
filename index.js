@@ -86,20 +86,26 @@ app.get("/cord", (req, res) =>{
 
 app.get("/setInfo", (req, res) =>{
     console.log(req.query)
-    storageDB.findOne({id: req.query.id}, (err, result) => {
+    storageDB.findOne({myId: req.query.id}, (err, result) => {
         if(result) {
             res.status(200).end()
             return
         }
-        let newSt = new storageDB({id: req.query.id, name: req.query.name})
+        let newSt = new storageDB({myId: req.query.id, name: req.query.name})
         newSt.save()
         res.status(200).end()
     })
 })
 
 app.get('/removeItem', (req, res) => {
-    storageDB.remove({id: req.query.id})
-    res.status(200).end()
+    storageDB.findOneAndRemove({myId: req.query.id}, (err, doc) => {
+        if (err || !doc){
+            res.status(500)
+            return
+        }
+        console.log(doc)
+        res.status(200).end()
+    })
 })
 
 app.get("/getInfo", (req, res) =>{
@@ -112,7 +118,7 @@ app.get("/getInfo", (req, res) =>{
         let result = {}
         for(let i = 0; i < docs.length; i++)
         {
-            result[`${docs[i].id}`] = docs[i].name
+            result[`${docs[i].myId}`] = docs[i].name
         }
         res.json(result)
     })
